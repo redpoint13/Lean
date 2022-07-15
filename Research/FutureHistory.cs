@@ -16,6 +16,7 @@
 using Python.Runtime;
 using QuantConnect.Data;
 using QuantConnect.Python;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,7 +25,7 @@ namespace QuantConnect.Research
     /// <summary>
     /// Class to manage information from History Request of Futures
     /// </summary>
-    public class FutureHistory
+    public class FutureHistory : IEnumerable<Slice>
     {
         private IEnumerable<Slice> _data;
         private PandasConverter _converter;
@@ -62,6 +63,18 @@ namespace QuantConnect.Research
                 return expiry.Distinct().ToList().ToPython();
             }
         }
+
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection
+        /// </summary>
+        /// <returns>Enumerable of Slice Objects</returns>
+        public IEnumerator<Slice> GetEnumerator() => _data.GetEnumerator();
+
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection
+        /// </summary>
+        /// <returns>Enumerable of Slice Objects</returns>
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         /// <summary>
         /// Returns a string that represent the current object
