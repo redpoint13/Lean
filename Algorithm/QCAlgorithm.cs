@@ -1830,6 +1830,17 @@ namespace QuantConnect.Algorithm
             return (Option)AddSecurity(canonicalSymbol, resolution, fillDataForward, leverage);
         }
 
+        public Option AddOption(Symbol underlying, string targetOption, Resolution? resolution = null,
+            string market = null, bool fillDataForward = true, decimal leverage = Security.NullLeverage)
+        {
+            // TODO: we need to allow the users to specify a target option different than the default for the given underlying, because it's not a 1:1 relation
+            // Index -> IndexOptions
+            // "SPX" -> [ "SPXW", "SPX" ]
+            // "NDX" -> [ "NDXP", "NDQ", "NDX" ]
+            // Futures -> FOPs
+            // "CL" -> "OL"
+        }
+
         /// <summary>
         /// Creates and adds a new <see cref="Future"/> security to the algorithm
         /// </summary>

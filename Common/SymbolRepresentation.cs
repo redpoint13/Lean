@@ -19,6 +19,7 @@ using QuantConnect.Logging;
 using System.Globalization;
 using QuantConnect.Securities;
 using System.Collections.Generic;
+using QuantConnect.Securities.Option;
 using QuantConnect.Securities.Future;
 using QuantConnect.Securities.FutureOption;
 using static QuantConnect.StringExtensions;
@@ -290,6 +291,7 @@ namespace QuantConnect
                 throw new ArgumentException(Invariant($"{nameof(GenerateOptionTickerOSI)} returns symbol to be an option, received {symbol.SecurityType}."));
             }
 
+            // TODO: why are we using the underlying? FOPs and IOPs might have a different map. Ex: SPXW221010C01000000
             return GenerateOptionTickerOSI(symbol.Underlying.Value, symbol.ID.OptionRight, symbol.ID.StrikePrice, symbol.ID.Date);
         }
 
@@ -305,6 +307,7 @@ namespace QuantConnect
         public static string GenerateOptionTickerOSI(string underlying, OptionRight right, decimal strikePrice, DateTime expiration)
         {
             if (underlying.Length > 5) underlying += " ";
+            // TODO: why are we using the underlying? FOPs and IOPs might have a different map. Ex: SPXW221010C01000000
             return Invariant($"{underlying,-6}{expiration.ToStringInvariant(DateFormat.SixCharacter)}{right.ToStringPerformance()[0]}{(strikePrice * 1000m):00000000}");
         }
 
@@ -340,7 +343,7 @@ namespace QuantConnect
             }
             else if(securityType == SecurityType.IndexOption)
             {
-                underlyingSid = SecurityIdentifier.GenerateIndex(underlying, market);
+                underlyingSid = SecurityIdentifier.GenerateIndex(OptionSymbol.MapToUnderlying(underlying, securityType), market);
             }
             else
             {

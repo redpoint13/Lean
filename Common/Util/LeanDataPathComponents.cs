@@ -15,7 +15,7 @@
 
 using System;
 using System.IO;
-using QuantConnect.Securities.Future;
+using QuantConnect.Securities.Option;
 
 namespace QuantConnect.Util
 {
@@ -174,12 +174,20 @@ namespace QuantConnect.Util
                 var style = (OptionStyle) Enum.Parse(typeof (OptionStyle), rawValue, true);
                 symbol = Symbol.CreateOption(ticker, market, style, OptionRight.Call | OptionRight.Put, 0, SecurityIdentifier.DefaultDate);
             }
+            else if (securityType == SecurityType.IndexOption)
+            {
+                var withoutExtension = Path.GetFileNameWithoutExtension(filename);
+                rawValue = withoutExtension.Substring(withoutExtension.LastIndexOf("_", StringComparison.Ordinal) + 1);
+                var style = (OptionStyle)Enum.Parse(typeof(OptionStyle), rawValue, true);
+                var indexSymbol = Symbol.Create(OptionSymbol.MapToUnderlying(ticker, securityType), SecurityType.Index, market);
+                symbol = Symbol.CreateOption(indexSymbol, market, style, OptionRight.Call | OptionRight.Put, 0, SecurityIdentifier.DefaultDate);
+            }
             else if (securityType == SecurityType.FutureOption)
             {
                 var withoutExtension = Path.GetFileNameWithoutExtension(filename);
                 rawValue = withoutExtension.Substring(withoutExtension.LastIndexOf("_", StringComparison.Ordinal) + 1);
                 var style = (OptionStyle) Enum.Parse(typeof (OptionStyle), rawValue, true);
-                var futureSymbol = QuantConnect.Symbol.Create(FuturesOptionsSymbolMappings.MapFromOption(ticker), SecurityType.Future, market);
+                var futureSymbol = Symbol.Create(OptionSymbol.MapToUnderlying(ticker, securityType), SecurityType.Future, market);
                 symbol = Symbol.CreateOption(futureSymbol, market, style, OptionRight.Call | OptionRight.Put, 0, SecurityIdentifier.DefaultDate);
             }
             else if (securityType == SecurityType.Future)
