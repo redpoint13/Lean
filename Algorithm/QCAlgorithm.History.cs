@@ -171,7 +171,7 @@ namespace QuantConnect.Algorithm
                     var startTimeUtc = CreateBarCountHistoryRequests(symbols, _warmupBarCount.Value, Settings.WarmupResolution)
                         .DefaultIfEmpty()
                         .Min(request => request == null ? default : request.StartTimeUtc);
-                    if(startTimeUtc != default)
+                    if (startTimeUtc != default)
                     {
                         result = startTimeUtc.ConvertFromUtc(TimeZone);
                         return true;
@@ -223,7 +223,7 @@ namespace QuantConnect.Algorithm
         [DocumentationAttribute(HistoricalData)]
         public IEnumerable<Slice> History(TimeSpan span, Resolution? resolution = null)
         {
-            return History(Securities.Keys, Time - span, Time, resolution).Memoize();
+            return History(Securities.Keys, Time - span, Time, resolution);
         }
 
         /// <summary>
@@ -237,7 +237,7 @@ namespace QuantConnect.Algorithm
         [DocumentationAttribute(HistoricalData)]
         public IEnumerable<Slice> History(int periods, Resolution? resolution = null)
         {
-            return History(Securities.Keys, periods, resolution).Memoize();
+            return History(Securities.Keys, periods, resolution);
         }
 
         /// <summary>
@@ -252,7 +252,7 @@ namespace QuantConnect.Algorithm
         public IEnumerable<DataDictionary<T>> History<T>(TimeSpan span, Resolution? resolution = null)
             where T : IBaseData
         {
-            return History<T>(Securities.Keys, span, resolution).Memoize();
+            return History<T>(Securities.Keys, span, resolution);
         }
 
         /// <summary>
@@ -268,7 +268,7 @@ namespace QuantConnect.Algorithm
         public IEnumerable<DataDictionary<T>> History<T>(IEnumerable<Symbol> symbols, TimeSpan span, Resolution? resolution = null)
             where T : IBaseData
         {
-            return History<T>(symbols, Time - span, Time, resolution).Memoize();
+            return History<T>(symbols, Time - span, Time, resolution);
         }
 
         /// <summary>
@@ -301,7 +301,7 @@ namespace QuantConnect.Algorithm
                 return _historyRequestFactory.CreateHistoryRequest(config, start, Time, exchange, res);
             });
 
-            return History(requests.Where(x => x != null)).Get<T>().Memoize();
+            return History(requests.Where(x => x != null)).Get<T>();
         }
 
         /// <summary>
@@ -325,7 +325,7 @@ namespace QuantConnect.Algorithm
                 return _historyRequestFactory.CreateHistoryRequest(config, start, end, GetExchangeHours(x), resolution);
             });
 
-            return History(requests.Where(x => x != null)).Get<T>().Memoize();
+            return History(requests.Where(x => x != null)).Get<T>();
         }
 
         /// <summary>
@@ -340,7 +340,7 @@ namespace QuantConnect.Algorithm
         public IEnumerable<T> History<T>(Symbol symbol, TimeSpan span, Resolution? resolution = null)
             where T : IBaseData
         {
-            return History<T>(symbol, Time - span, Time, resolution).Memoize();
+            return History<T>(symbol, Time - span, Time, resolution);
         }
 
         /// <summary>
@@ -382,7 +382,7 @@ namespace QuantConnect.Algorithm
                 throw new ArgumentException("History functions that accept a 'periods' parameter can not be used with Resolution.Tick");
             }
 
-            var requests = CreateBarCountHistoryRequests(new [] { symbol }, typeof(T), periods, resolution);
+            var requests = CreateBarCountHistoryRequests(new[] { symbol }, typeof(T), periods, resolution);
             return GetDataTypedHistory<T>(symbol, requests);
         }
 
@@ -439,7 +439,7 @@ namespace QuantConnect.Algorithm
                                                     " Please use the generic version with Tick type parameter or provide a list of Symbols to use the Slice history request API.");
             }
 
-            return History(new[] { symbol }, start, end, resolutionToUse).Get(symbol).Memoize();
+            return History(new[] { symbol }, start, end, resolutionToUse).Get(symbol);
         }
 
         /// <summary>
@@ -454,7 +454,7 @@ namespace QuantConnect.Algorithm
         [DocumentationAttribute(HistoricalData)]
         public IEnumerable<Slice> History(IEnumerable<Symbol> symbols, TimeSpan span, Resolution? resolution = null)
         {
-            return History(symbols, Time - span, Time, resolution).Memoize();
+            return History(symbols, Time - span, Time, resolution);
         }
 
         /// <summary>
@@ -470,7 +470,7 @@ namespace QuantConnect.Algorithm
         public IEnumerable<Slice> History(IEnumerable<Symbol> symbols, int periods, Resolution? resolution = null)
         {
             if (resolution == Resolution.Tick) throw new ArgumentException("History functions that accept a 'periods' parameter can not be used with Resolution.Tick");
-            return History(CreateBarCountHistoryRequests(symbols, periods, resolution)).Memoize();
+            return History(CreateBarCountHistoryRequests(symbols, periods, resolution));
         }
 
         /// <summary>
@@ -493,7 +493,7 @@ namespace QuantConnect.Algorithm
             DataNormalizationMode? dataNormalizationMode = null, int? contractDepthOffset = null)
         {
             return History(CreateDateRangeHistoryRequests(symbols, start, end, resolution, fillForward, extendedMarket, dataMappingMode,
-                dataNormalizationMode, contractDepthOffset)).Memoize();
+                dataNormalizationMode, contractDepthOffset));
         }
 
         /// <summary>
@@ -504,7 +504,7 @@ namespace QuantConnect.Algorithm
         [DocumentationAttribute(HistoricalData)]
         public IEnumerable<Slice> History(HistoryRequest request)
         {
-            return History(new[] { request }).Memoize();
+            return History(new[] { request });
         }
 
         /// <summary>
@@ -515,7 +515,7 @@ namespace QuantConnect.Algorithm
         [DocumentationAttribute(HistoricalData)]
         public IEnumerable<Slice> History(IEnumerable<HistoryRequest> requests)
         {
-            return History(requests, TimeZone).Memoize();
+            return History(requests, TimeZone);
         }
 
         /// <summary>
@@ -633,7 +633,7 @@ namespace QuantConnect.Algorithm
                     $"This could be due to the specified security not being of the requested type. Symbol: {symbol} Requested Type: {typeof(T).Name}");
             }
 
-            return History(requests).Get<T>(symbol).Memoize();
+            return History(requests).Get<T>(symbol);
         }
 
         [DocumentationAttribute(HistoricalData)]
@@ -644,7 +644,7 @@ namespace QuantConnect.Algorithm
             var filteredRequests = requests.Where(hr => HistoryRequestValid(hr.Symbol)).ToList();
             for (var i = 0; i < filteredRequests.Count; i++)
             {
-                var request  = filteredRequests[i];
+                var request = filteredRequests[i];
                 // prevent future requests
                 if (request.EndTimeUtc > UtcTime)
                 {
@@ -760,8 +760,8 @@ namespace QuantConnect.Algorithm
         private IEnumerable<SubscriptionDataConfig> GetMatchingSubscriptions(Symbol symbol, Type type, Resolution? resolution = null)
         {
             var matchingSubscriptions = SubscriptionManager.SubscriptionDataConfigService
-                 // we add internal subscription so that history requests are covered, this allows us to warm them up too
-                .GetSubscriptionDataConfigs(symbol, includeInternalConfigs:true)
+                // we add internal subscription so that history requests are covered, this allows us to warm them up too
+                .GetSubscriptionDataConfigs(symbol, includeInternalConfigs: true)
                 // find all subscriptions matching the requested type with a higher resolution than requested
                 .OrderByDescending(s => s.Resolution)
                 // lets make sure to respect the order of the data types
@@ -784,7 +784,7 @@ namespace QuantConnect.Algorithm
 
             // if we have any user defined subscription configuration we use it, else we use internal ones if any
             List<SubscriptionDataConfig> configs = null;
-            if(userConfig.Count != 0)
+            if (userConfig.Count != 0)
             {
                 configs = userConfig;
             }
@@ -811,7 +811,7 @@ namespace QuantConnect.Algorithm
             }
             else
             {
-                var entry = MarketHoursDatabase.GetEntry(symbol, new []{ type });
+                var entry = MarketHoursDatabase.GetEntry(symbol, new[] { type });
                 resolution = GetResolution(symbol, resolution);
 
                 return SubscriptionManager

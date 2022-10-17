@@ -505,7 +505,7 @@ namespace QuantConnect.Algorithm
                 return ReferenceEquals(result, Universe.Unchanged)
                     ? Universe.Unchanged : ((object[])result)
                         .Select(x => x is Symbol ? (Symbol)x : QuantConnect.Symbol.Create((string)x, securityType, market, baseDataType: dataType));
-                }
+            }
             ));
         }
 
@@ -955,7 +955,7 @@ namespace QuantConnect.Algorithm
             var requestedType = type.CreateType();
             var requests = CreateBarCountHistoryRequests(symbols, requestedType, periods, resolution);
 
-            return PandasConverter.GetDataFrame(History(requests.Where(x => x != null)).Memoize(), requestedType);
+            return PandasConverter.GetDataFrame(History(requests.Where(x => x != null)), requestedType);
         }
 
         /// <summary>
@@ -986,14 +986,14 @@ namespace QuantConnect.Algorithm
         public PyObject History(PyObject type, Symbol symbol, DateTime start, DateTime end, Resolution? resolution = null)
         {
             var requestedType = type.CreateType();
-            var requests = CreateDateRangeHistoryRequests(new [] {  symbol }, requestedType, start, end, resolution);
+            var requests = CreateDateRangeHistoryRequests(new[] { symbol }, requestedType, start, end, resolution);
             if (requests.IsNullOrEmpty())
             {
                 throw new ArgumentException($"No history data could be fetched. " +
                     $"This could be due to the specified security not being of the requested type. Symbol: {symbol} Requested Type: {requestedType.Name}");
             }
 
-            return PandasConverter.GetDataFrame(History(requests).Memoize(), requestedType);
+            return PandasConverter.GetDataFrame(History(requests), requestedType);
         }
 
         /// <summary>
@@ -1342,7 +1342,7 @@ namespace QuantConnect.Algorithm
         {
             using (Py.GIL())
             {
-                var array = new[] {first, second, third, fourth}
+                var array = new[] { first, second, third, fourth }
                     .Select(
                         x =>
                         {

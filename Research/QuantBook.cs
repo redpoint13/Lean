@@ -52,6 +52,8 @@ namespace QuantConnect.Research
 
         static QuantBook()
         {
+            TextSubscriptionDataSourceReader.DisableCache();
+
             //Determine if we are in a Python Notebook
             try
             {
@@ -151,7 +153,7 @@ namespace QuantConnect.Research
                     });
                 SetObjectStore(algorithmHandlers.ObjectStore);
 
-                _dataCacheProvider = new ZipDataCacheProvider(algorithmHandlers.DataProvider);
+                _dataCacheProvider = new DiskDataCacheProvider();
                 _dataProvider = algorithmHandlers.DataProvider;
 
                 var symbolPropertiesDataBase = SymbolPropertiesDatabase.FromDataFolder();

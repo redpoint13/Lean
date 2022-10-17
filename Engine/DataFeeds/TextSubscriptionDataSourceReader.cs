@@ -14,12 +14,10 @@
 */
 
 using System;
-using System.IO;
 using System.Linq;
 using QuantConnect.Data;
 using QuantConnect.Logging;
 using QuantConnect.Interfaces;
-using QuantConnect.Data.Market;
 using System.Collections.Generic;
 using QuantConnect.Data.Fundamental;
 using QuantConnect.Data.UniverseSelection;
@@ -61,7 +59,7 @@ namespace QuantConnect.Lean.Engine.DataFeeds
         {
             _date = date;
             _config = config;
-            _shouldCacheDataPoints = !_config.IsCustomData && _config.Resolution >= Resolution.Hour
+            _shouldCacheDataPoints = CacheSize != -1 && !_config.IsCustomData && _config.Resolution >= Resolution.Hour
                 && _config.Type != typeof(FineFundamental) && _config.Type != typeof(CoarseFundamental)
                 && !DataCacheProvider.IsDataEphemeral;
 
@@ -207,12 +205,27 @@ namespace QuantConnect.Lean.Engine.DataFeeds
         /// <remarks>How to size this cache: Take worst case scenario, BTCUSD hour, 60k QuoteBar entries, which are roughly 200 bytes in size -> 11 MB * CacheSize</remarks>
         public static void SetCacheSize(int megaBytesToUse)
         {
-            if (megaBytesToUse != 0)
+            if (megaBytesToUse == -1)
+            {
+                CacheSize = -1;
+                BaseDataSourceCache = new();
+                CacheKeys = new();
+                Log.Trace($"TextSubscriptionDataSourceReader.SetCacheSize(): Disabled cache");
+            }
+            else if (megaBytesToUse != 0)
             {
                 // we take worst case scenario, each entry is 12 MB
                 CacheSize = megaBytesToUse / 12;
                 Log.Trace($"TextSubscriptionDataSourceReader.SetCacheSize(): Setting cache size to {CacheSize} items");
             }
+        }
+
+        /// <summary>
+        /// Disable the data cache
+        /// </summary>
+        public static void DisableCache()
+        {
+            SetCacheSize(-1);
         }
     }
 }
